@@ -130,7 +130,7 @@ export default function EventForm({ match, history }) {
               timeFormat='HH:mm'
               showTimeSelect
               timeCaption='Time'
-              dateFormat='d-MMMM-yyyy, h:mm a'
+              dateFormat='dd-MMMM-yyyy, h:mm a'
             />
             {selectedEvent && (
               <Button
