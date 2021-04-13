@@ -1,8 +1,8 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Grid } from "semantic-ui-react";
-import ProfileContent from "./ProfileContent";
 import ProfileHeader from "./ProfileHeader";
+import ProfileContent from "./ProfileContent";
+import { useDispatch, useSelector } from "react-redux";
 import useFirestoreDoc from "../../../app/hooks/useFirestoreDoc";
 import { getUserProfile } from "../../../app/firestore/firestoreService";
 import { listenToSelectedUserProfile } from "../profileActions";

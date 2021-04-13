@@ -5,7 +5,7 @@ import {
   asyncActionFinish,
   asyncActionStart,
 } from "../async/asyncReducer";
-import { dataFromSnapShot } from "../firestore/firestoreService";
+import { dataFromSnapshot } from "../firestore/firestoreService";
 
 export default function useFirestoreDoc({
   query,
@@ -29,7 +29,7 @@ export default function useFirestoreDoc({
           );
           return;
         }
-        data(dataFromSnapShot(snapshot));
+        data(dataFromSnapshot(snapshot));
         dispatch(asyncActionFinish());
       },
       (error) => dispatch(asyncActionError())

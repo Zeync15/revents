@@ -5,7 +5,7 @@ import {
   asyncActionFinish,
   asyncActionStart,
 } from "../async/asyncReducer";
-import { dataFromSnapShot } from "../firestore/firestoreService";
+import { dataFromSnapshot } from "../firestore/firestoreService";
 
 export default function useFirestoreCollection({ query, data, deps }) {
   const dispatch = useDispatch();
@@ -14,7 +14,7 @@ export default function useFirestoreCollection({ query, data, deps }) {
     dispatch(asyncActionStart());
     const unsubscribe = query().onSnapshot(
       (snapshot) => {
-        const docs = snapshot.docs.map((doc) => dataFromSnapShot(doc));
+        const docs = snapshot.docs.map((doc) => dataFromSnapshot(doc));
         data(docs);
         dispatch(asyncActionFinish());
       },

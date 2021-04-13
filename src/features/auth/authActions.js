@@ -2,7 +2,7 @@ import { SIGN_IN_USER, SIGN_OUT_USER } from "./authConstants";
 import { APP_LOADED } from "../../app/async/asyncReducer";
 import firebase from "../../app/config/firebase";
 import {
-  dataFromSnapShot,
+  dataFromSnapshot,
   getUserProfile,
 } from "../../app/firestore/firestoreService";
 import { listenToCurrentUserProfile } from "../profiles/profileActions";
@@ -21,7 +21,7 @@ export function verifyAuth() {
         dispatch(signInUser(user));
         const profileRef = getUserProfile(user.uid);
         profileRef.onSnapshot((snapshot) => {
-          dispatch(listenToCurrentUserProfile(dataFromSnapShot(snapshot)));
+          dispatch(listenToCurrentUserProfile(dataFromSnapshot(snapshot)));
           dispatch({ type: APP_LOADED });
         });
       } else {

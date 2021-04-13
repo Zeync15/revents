@@ -2,7 +2,7 @@ import firebase from "../config/firebase";
 
 const db = firebase.firestore();
 
-export function dataFromSnapShot(snapshot) {
+export function dataFromSnapshot(snapshot) {
   if (!snapshot.exists) return undefined;
   const data = snapshot.data();
 
@@ -28,12 +28,10 @@ export function listenToEventsFromFirestore(predicate) {
       return eventsRef
         .where("attendeeIds", "array-contains", user.uid)
         .where("date", ">=", predicate.get("startDate"));
-
     case "isHost":
       return eventsRef
         .where("hostUid", "==", user.uid)
         .where("date", ">=", predicate.get("startDate"));
-
     default:
       return eventsRef.where("date", ">=", predicate.get("startDate"));
   }
@@ -45,7 +43,6 @@ export function listenToEventFromFirestore(eventId) {
 
 export function addEventToFirestore(event) {
   const user = firebase.auth().currentUser;
-
   return db.collection("events").add({
     ...event,
     hostUid: user.uid,
@@ -81,7 +78,7 @@ export function setUserProfileData(user) {
     .set({
       displayName: user.displayName,
       email: user.email,
-      photo: user.photoURL || null,
+      photoURL: user.photoURL || null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
 }
@@ -191,19 +188,82 @@ export function getUserEventsQuery(activeTab, userUid) {
   let eventsRef = db.collection("events");
   const today = new Date();
   switch (activeTab) {
-    case 1: //past events
+    case 1: // past events
       return eventsRef
         .where("attendeeIds", "array-contains", userUid)
         .where("date", "<=", today)
         .orderBy("date", "desc");
-
-    case 2: //hosting
+    case 2: // hosting
       return eventsRef.where("hostUid", "==", userUid).orderBy("date");
-
     default:
       return eventsRef
         .where("attendeeIds", "array-contains", userUid)
         .where("date", ">=", today)
         .orderBy("date");
   }
+}
+
+export async function followUser(profile) {
+  const user = firebase.auth().currentUser;
+  const batch = db.batch();
+  try {
+    batch.set(
+      db
+        .collection("following")
+        .doc(user.uid)
+        .collection("userFollowing")
+        .doc(profile.id),
+      {
+        displayName: profile.displayName,
+        photoURL: profile.photoURL,
+        uid: profile.id,
+      }
+    );
+    batch.update(db.collection("users").doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(1),
+    });
+    return await batch.commit();
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function unfollowUser(profile) {
+  const user = firebase.auth().currentUser;
+  const batch = db.batch();
+  try {
+    batch.delete(
+      db
+        .collection("following")
+        .doc(user.uid)
+        .collection("userFollowing")
+        .doc(profile.id)
+    );
+
+    batch.update(db.collection("users").doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(-1),
+    });
+
+    return await batch.commit();
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function getFollowersCollection(profileId) {
+  return db.collection("following").doc(profileId).collection("userFollowers");
+}
+
+export function getFollowingCollection(profileId) {
+  return db.collection("following").doc(profileId).collection("userFollowing");
+}
+
+export function getFollowingDoc(profileId) {
+  const userUid = firebase.auth().currentUser.uid;
+  return db
+    .collection("following")
+    .doc(userUid)
+    .collection("userFollowing")
+    .doc(profileId)
+    .get();
 }
